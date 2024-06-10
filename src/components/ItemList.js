@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import app from "../firebase-config";
-import { getDatabase, ref, onValue } from "firebase/database";
+import { getDatabase, ref, onValue, update, remove } from "firebase/database";
 import CreateItem from "./CreateItem";
+import EditIcon from "@mui/icons-material/Edit";
+import CheckIcon from "@mui/icons-material/Check";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AuthEdit from "./AuthEdit";
+import AuthSaveEdit from "./AuthSaveValueEdit";
 import {
   Table,
   TableBody,
@@ -10,28 +15,35 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Stack,
   Pagination,
   Button,
   Box,
   Typography,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 
 function ItemList() {
+  const [openModal, setOpenModal] = useState(false);
   const [getItems, setGetItems] = useState([]);
   const [page, setPage] = useState(1);
+  const [openConfirmation, setOpenConfirmation] = useState(false);
+  const [openConfirmationSave, setOpenConfirmationSave] = useState(false);
+  const [authEdit, setAuthEdit] = useState(false);
+  const [editItemId, setEditItemId] = useState(null);
+  const [editData, setEditData] = useState({});
   const itemsPerPage = 10;
   const startIndex = (page - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const [openModal, setOpenModal] = React.useState(false);
 
   useEffect(() => {
     const db = getDatabase(app);
     const dbRef = ref(db, "item/data");
-
     const unsubscribe = onValue(dbRef, (snapshot) => {
       if (snapshot.exists()) {
-        setGetItems(Object.values(snapshot.val()));
+        setGetItems(
+          Object.entries(snapshot.val()).map(([id, data]) => ({ id, ...data }))
+        );
       } else {
         setGetItems([]);
       }
@@ -40,7 +52,29 @@ function ItemList() {
     return () => unsubscribe();
   }, []);
 
+  const handleEdit = (item) => {
+    setAuthEdit(true);
+    setEditItemId(item.id);
+    setEditData(item);
+  };
+
+  const handleSave = async () => {
+    const db = getDatabase(app);
+    const dbRef = ref(db, `item/data/${editItemId}`);
+    await update(dbRef, editData);
+    setAuthEdit(false);
+    setOpenConfirmationSave(false);
+  };
+
+  const handleDelete = async (menuId) => {
+    const db = getDatabase(app);
+    const dbRef = ref(db, "item/data/" + menuId);
+    await remove(dbRef);
+    window.location.reload();
+  };
+
   const TableHeader = ["Food", "Category", "Size", "Stock", "Price", "Cost"];
+
   return (
     <Box sx={{ position: "relative" }}>
       <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
@@ -67,21 +101,133 @@ function ItemList() {
           </TableHead>
           <TableBody>
             {getItems.slice(startIndex, endIndex).map((item, index) => (
-              <TableRow key={index}>
+              <TableRow key={item.id}>
                 <TableCell component="th" scope="row">
-                  {item.name}
+                  {authEdit && editItemId === item.id ? (
+                    <TextField
+                      id="name"
+                      label="Name"
+                      variant="standard"
+                      value={editData.name}
+                      onChange={(e) =>
+                        setEditData({ ...editData, name: e.target.value })
+                      }
+                    />
+                  ) : (
+                    item.name
+                  )}
                 </TableCell>
-                <TableCell align="left">{item.category}</TableCell>
-                <TableCell align="left">{item.size}</TableCell>
-                <TableCell align="left">{item.stock}</TableCell>
-                <TableCell align="left">{item.price}</TableCell>
-                <TableCell align="left">{item.cost}</TableCell>
+                <TableCell align="left">
+                  {authEdit && editItemId === item.id ? (
+                    <TextField
+                      id="category"
+                      label="Category"
+                      variant="standard"
+                      value={editData.category}
+                      onChange={(e) =>
+                        setEditData({ ...editData, category: e.target.value })
+                      }
+                    />
+                  ) : (
+                    item.category
+                  )}
+                </TableCell>
+                <TableCell align="left">
+                  {authEdit && editItemId === item.id ? (
+                    <TextField
+                      id="size"
+                      label="Size"
+                      variant="standard"
+                      value={editData.size}
+                      onChange={(e) =>
+                        setEditData({ ...editData, size: e.target.value })
+                      }
+                    />
+                  ) : (
+                    item.size
+                  )}
+                </TableCell>
+                <TableCell align="left">
+                  {authEdit && editItemId === item.id ? (
+                    <TextField
+                      id="stock"
+                      label="Stock"
+                      variant="standard"
+                      value={editData.stock}
+                      onChange={(e) =>
+                        setEditData({ ...editData, stock: e.target.value })
+                      }
+                    />
+                  ) : (
+                    item.stock
+                  )}
+                </TableCell>
+                <TableCell align="left">
+                  {authEdit && editItemId === item.id ? (
+                    <TextField
+                      id="price"
+                      label="Price"
+                      type="number"
+                      size="small"
+                      variant="standard"
+                      fullWidth
+                      value={editData.price}
+                      onChange={(e) =>
+                        setEditData({ ...editData, price: e.target.value })
+                      }
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">₱</InputAdornment>
+                        ),
+                      }}
+                    />
+                  ) : (
+                    item.price
+                  )}
+                </TableCell>
+                <TableCell align="left">
+                  {authEdit && editItemId === item.id ? (
+                    <TextField
+                      id="cost"
+                      label="Cost"
+                      type="number"
+                      size="small"
+                      variant="standard"
+                      fullWidth
+                      value={editData.cost}
+                      onChange={(e) =>
+                        setEditData({ ...editData, cost: e.target.value })
+                      }
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">₱</InputAdornment>
+                        ),
+                      }}
+                    />
+                  ) : (
+                    item.cost
+                  )}
+                </TableCell>
 
                 <TableCell align="left" sx={{ borderTop: "1px solid #E0E0E0" }}>
-                  <Button>Edit</Button>
+                  {authEdit && editItemId === item.id ? (
+                    <Button
+                      onClick={() => {
+                        setOpenConfirmationSave(true);
+                      }}
+                    >
+                      <CheckIcon />
+                    </Button>
+                  ) : (
+                    <Button onClick={() => handleEdit(item)}>
+                      <EditIcon />
+                    </Button>
+                  )}
                 </TableCell>
                 <TableCell align="left" sx={{ borderTop: "1px solid #E0E0E0" }}>
-                  <Button>Delete</Button>
+                  <Button onClick={() => handleDelete(item.id)}>
+                    <DeleteIcon />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -111,6 +257,24 @@ function ItemList() {
         <CreateItem
           open={openModal}
           handleClose={() => setOpenModal(!openModal)}
+        />
+      )}
+      {openConfirmation && (
+        <AuthEdit
+          handleOpen={openConfirmation}
+          handleClose={() => setOpenConfirmation(!openConfirmation)}
+          updateDataConfirmed={(data) => setAuthEdit(data)}
+        />
+      )}
+      {openConfirmationSave && (
+        <AuthSaveEdit
+          handleOpen={openConfirmationSave}
+          handleClose={() => setOpenConfirmationSave(false)}
+          updateDataConfirmed={(data) => {
+            if (data) {
+              handleSave();
+            }
+          }}
         />
       )}
     </Box>
