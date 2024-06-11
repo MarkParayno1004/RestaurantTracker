@@ -30,16 +30,17 @@ export default function AuthSaveEdit({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button autoFocus onClick={handleClose}>
-          Disagree
+        <Button autoFocus onClick={handleClose} color="error">
+          Cancel
         </Button>
         <Button
           onClick={() => {
             updateDataConfirmed(true);
             handleClose();
           }}
+          sx={{ color: "#00a5b0" }}
         >
-          Agree
+          Proceed
         </Button>
       </DialogActions>
     </Dialog>

@@ -11,6 +11,8 @@ import Select from "@mui/material/Select";
 import app from "../firebase-config";
 import { getDatabase, ref, set, push } from "firebase/database";
 import { Grid, InputAdornment } from "@mui/material";
+import Alert from "@mui/material/Alert";
+import CheckIcon from "@mui/icons-material/Check";
 
 export default function CreateItem({ open, handleClose }) {
   const nameRef = React.useRef(null);
@@ -54,7 +56,9 @@ export default function CreateItem({ open, handleClose }) {
       size: size,
     })
       .then(() => {
-        alert("Data Save Successfully");
+        <Alert icon={<CheckIcon fontSize="inherit" />} severity="success">
+          Here is a gentle confirmation that your action was successful.
+        </Alert>;
         nameRef.current.value = "";
         priceRef.current.value = "";
         costRef.current.value = "";
@@ -95,10 +99,9 @@ export default function CreateItem({ open, handleClose }) {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="spring-modal-title" variant="h6" component="h2">
+          <Typography id="spring-modal-title" variant="h4" mb={2}>
             Menu
           </Typography>
-
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <TextField

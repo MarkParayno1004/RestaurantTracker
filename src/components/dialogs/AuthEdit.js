@@ -12,6 +12,7 @@ export default function AuthEdit({
   handleOpen,
   handleClose,
   updateDataConfirmed,
+  item,
 }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
@@ -24,7 +25,7 @@ export default function AuthEdit({
       aria-labelledby="responsive-dialog-title"
     >
       <DialogTitle id="responsive-dialog-title">
-        {"Update this item?"}
+        {"Update this item"}
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
@@ -32,16 +33,17 @@ export default function AuthEdit({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button autoFocus onClick={handleClose}>
-          Disagree
+        <Button autoFocus onClick={handleClose} color="error">
+          Cancel
         </Button>
         <Button
           onClick={() => {
-            updateDataConfirmed(true);
+            updateDataConfirmed(item);
             handleClose();
           }}
+          sx={{ color: "#00a5b0" }}
         >
-          Agree
+          Proceed
         </Button>
       </DialogActions>
     </Dialog>
