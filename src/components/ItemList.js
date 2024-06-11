@@ -5,8 +5,9 @@ import CreateItem from "./CreateItem";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
 import DeleteIcon from "@mui/icons-material/Delete";
-import AuthEdit from "./AuthEdit";
-import AuthSaveEdit from "./AuthSaveValueEdit";
+import AuthEdit from "./dialogs/AuthEdit";
+import AuthSaveEdit from "./dialogs/AuthSaveValueEdit";
+import AuthDelete from "./dialogs/AuthDelete";
 import {
   Table,
   TableBody,

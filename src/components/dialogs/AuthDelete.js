@@ -8,7 +8,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 
-export default function AuthEdit({
+export default function AuthDelete({
   handleOpen,
   handleClose,
   updateDataConfirmed,
