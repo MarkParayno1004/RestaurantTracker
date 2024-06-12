@@ -8,7 +8,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 
-export default function AuthEdit({
+export default function AuthDelete({
   handleOpen,
   handleClose,
   updateDataConfirmed,
@@ -28,16 +28,17 @@ export default function AuthEdit({
         <DialogContentText>Do you want to delete this menu?</DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button autoFocus onClick={handleClose}>
-          Disagree
+        <Button autoFocus onClick={handleClose} color="error">
+          Cancel
         </Button>
         <Button
           onClick={() => {
-            updateDataConfirmed(true);
+            updateDataConfirmed();
             handleClose();
           }}
+          sx={{ color: "#00a5b0" }}
         >
-          Agree
+          Proceed
         </Button>
       </DialogActions>
     </Dialog>

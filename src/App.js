@@ -9,7 +9,7 @@ function App() {
       <Typography
         m={2}
         variant="h4"
-        color="primary"
+        color="#00a5b0"
         sx={{ fontWeight: "bold" }}
       >
         Restaurant Tracker
