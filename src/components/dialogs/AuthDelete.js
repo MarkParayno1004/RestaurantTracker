@@ -28,16 +28,17 @@ export default function AuthDelete({
         <DialogContentText>Do you want to delete this menu?</DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button autoFocus onClick={handleClose}>
-          Disagree
+        <Button autoFocus onClick={handleClose} color="error">
+          Cancel
         </Button>
         <Button
           onClick={() => {
-            updateDataConfirmed(true);
+            updateDataConfirmed();
             handleClose();
           }}
+          sx={{ color: "#00a5b0" }}
         >
-          Agree
+          Proceed
         </Button>
       </DialogActions>
     </Dialog>

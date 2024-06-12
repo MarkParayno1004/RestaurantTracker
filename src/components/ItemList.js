@@ -22,17 +22,21 @@ import {
   Typography,
   TextField,
   InputAdornment,
+  IconButton,
 } from "@mui/material";
 
 function ItemList() {
-  const [openModal, setOpenModal] = useState(false);
+  const [createMenu, setCreateMenu] = useState(false);
   const [getItems, setGetItems] = useState([]);
   const [page, setPage] = useState(1);
-  const [openConfirmation, setOpenConfirmation] = useState(false);
+  const [openEditConfirmation, setOpenEditConfirmation] = useState(false);
   const [openConfirmationSave, setOpenConfirmationSave] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
   const [authEdit, setAuthEdit] = useState(false);
   const [editItemId, setEditItemId] = useState(null);
   const [editData, setEditData] = useState({});
+  const [deleteItemId, setDeleteItemId] = useState(null);
+  const [currentItem, setCurrentItem] = useState(null);
   const itemsPerPage = 10;
   const startIndex = (page - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -67,10 +71,12 @@ function ItemList() {
     setOpenConfirmationSave(false);
   };
 
-  const handleDelete = async (menuId) => {
+  const handleDelete = async () => {
     const db = getDatabase(app);
-    const dbRef = ref(db, "item/data/" + menuId);
+    const dbRef = ref(db, `item/data/${deleteItemId}`);
     await remove(dbRef);
+    setOpenDelete(false);
+    setDeleteItemId(null);
     window.location.reload();
   };
 
@@ -79,7 +85,11 @@ function ItemList() {
   return (
     <Box sx={{ position: "relative" }}>
       <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-        <Button variant="contained" onClick={() => setOpenModal(!openModal)}>
+        <Button
+          variant="contained"
+          onClick={() => setCreateMenu(!createMenu)}
+          style={{ backgroundColor: "#00a5b0" }}
+        >
           Add Menu
         </Button>
       </Box>
@@ -92,7 +102,7 @@ function ItemList() {
                   <Typography
                     variant="h6"
                     sx={{ fontWeight: "bold" }}
-                    color="primary"
+                    color="#00a5b0"
                   >
                     {title}
                   </Typography>
@@ -212,23 +222,46 @@ function ItemList() {
 
                 <TableCell align="left" sx={{ borderTop: "1px solid #E0E0E0" }}>
                   {authEdit && editItemId === item.id ? (
-                    <Button
-                      onClick={() => {
-                        setOpenConfirmationSave(true);
+                    <IconButton
+                      color="primary"
+                      aria-label="save edit"
+                      onClick={() => setOpenConfirmationSave(true)}
+                      sx={{
+                        color: "#00a5b0",
                       }}
                     >
                       <CheckIcon />
-                    </Button>
+                    </IconButton>
                   ) : (
-                    <Button onClick={() => handleEdit(item)}>
+                    <IconButton
+                      color="primary"
+                      aria-label="edit menu"
+                      onClick={() => {
+                        setOpenEditConfirmation(true);
+                        setCurrentItem(item);
+                      }}
+                      sx={{
+                        color: "#00a5b0",
+                      }}
+                    >
                       <EditIcon />
-                    </Button>
+                    </IconButton>
                   )}
                 </TableCell>
                 <TableCell align="left" sx={{ borderTop: "1px solid #E0E0E0" }}>
-                  <Button onClick={() => handleDelete(item.id)}>
+                  <IconButton
+                    color="primary"
+                    aria-label="delete menu"
+                    onClick={() => {
+                      setOpenDelete(true);
+                      setDeleteItemId(item.id);
+                    }}
+                    sx={{
+                      color: "#00a5b0",
+                    }}
+                  >
                     <DeleteIcon />
-                  </Button>
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}
@@ -250,21 +283,36 @@ function ItemList() {
           count={Math.ceil(getItems.length / itemsPerPage)}
           page={page}
           onChange={(event, value) => setPage(value)}
-          color="primary"
-          sx={{ mb: 2 }}
+          sx={{
+            mb: 2,
+            "& .Mui-selected": {
+              color: "#00a5b0",
+              backgroundColor: "rgba(0, 165, 176, 0.08)",
+            },
+            "& .MuiPaginationItem-page": {
+              "&:hover": {
+                backgroundColor: "rgba(0, 165, 176, 0.04)",
+              },
+            },
+          }}
         />
       </Box>
-      {openModal && (
+      {createMenu && (
         <CreateItem
-          open={openModal}
-          handleClose={() => setOpenModal(!openModal)}
+          open={createMenu}
+          handleClose={() => setCreateMenu(!createMenu)}
         />
       )}
-      {openConfirmation && (
+      {openEditConfirmation && (
         <AuthEdit
-          handleOpen={openConfirmation}
-          handleClose={() => setOpenConfirmation(!openConfirmation)}
-          updateDataConfirmed={(data) => setAuthEdit(data)}
+          handleOpen={openEditConfirmation}
+          handleClose={() => setOpenEditConfirmation(false)}
+          updateDataConfirmed={(data) => {
+            if (data) {
+              handleEdit(currentItem);
+            }
+          }}
+          item={currentItem}
         />
       )}
       {openConfirmationSave && (
@@ -276,6 +324,13 @@ function ItemList() {
               handleSave();
             }
           }}
+        />
+      )}
+      {openDelete && (
+        <AuthDelete
+          handleOpen={openDelete}
+          handleClose={() => setOpenDelete(!openDelete)}
+          updateDataConfirmed={handleDelete}
         />
       )}
     </Box>
