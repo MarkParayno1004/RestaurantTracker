@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -18,13 +18,22 @@ import {
   TextField,
   InputAdornment,
   IconButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { UpdateTableMenu } from "./utils/CRUD";
-import { ItemListReducer, InitState } from "./utils/Reducers";
+import { ItemListReducer, InitState, SizeReducer } from "./utils/Reducers";
+import { getCategories } from "./utils/Categories"; // Import your categories function
 
 export default function MenuViewer() {
   const TableHeader = ["Food", "Category", "Size", "Stock", "Price", "Cost"];
   const [state, dispatch] = useReducer(ItemListReducer, InitState);
+  const [sizeOptions, dispatchSize] = useReducer(SizeReducer, []);
+  const [size, setSize] = useState("");
+  const [category, setCategory] = useState("");
+  const categories = getCategories();
   const {
     createMenu,
     getItems,
@@ -93,43 +102,126 @@ export default function MenuViewer() {
                     value: item.cost,
                     type: "number",
                   },
-                ].map((field) => (
-                  <TableCell align="left" key={field.id}>
-                    {authEdit && editItemId === item.id ? (
-                      <TextField
-                        id={field.id}
-                        label={field.label}
-                        type={field.type || "text"}
-                        size="small"
-                        variant="standard"
-                        fullWidth
-                        value={editData[field.id]}
-                        onChange={(e) =>
-                          dispatch({
-                            type: "SET_EDIT_DATA",
-                            payload: {
-                              ...editData,
-                              [field.id]: e.target.value,
-                            },
-                          })
-                        }
-                        InputProps={
-                          field.type === "number"
-                            ? {
-                                startAdornment: (
-                                  <InputAdornment position="start">
-                                    ₱
-                                  </InputAdornment>
-                                ),
-                              }
-                            : null
-                        }
-                      />
-                    ) : (
-                      field.value
-                    )}
-                  </TableCell>
-                ))}
+                ].map((field) => {
+                  let content;
+                  if (authEdit && editItemId === item.id) {
+                    if (field.id === "category") {
+                      content = (
+                        <FormControl
+                          sx={{ minWidth: 120 }}
+                          size="small"
+                          fullWidth
+                        >
+                          <InputLabel id="demo-select-small-label">
+                            Category
+                          </InputLabel>
+                          <Select
+                            labelId="demo-select-small-label"
+                            id="demo-select-small"
+                            value={editData[field.id] || category}
+                            label="Category"
+                            onChange={(e) => {
+                              setCategory(e.target.value);
+                              dispatchSize({ type: e.target.value });
+                              setSize("");
+                              dispatch({
+                                type: "SET_EDIT_DATA",
+                                payload: {
+                                  ...editData,
+                                  [field.id]: e.target.value,
+                                  size: "", // reset size when category changes
+                                },
+                              });
+                            }}
+                          >
+                            {categories.map((category) => (
+                              <MenuItem
+                                key={category.value}
+                                value={category.value}
+                              >
+                                {category.label}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      );
+                    } else if (field.id === "size") {
+                      content = (
+                        <FormControl
+                          sx={{ minWidth: 120 }}
+                          size="small"
+                          fullWidth
+                        >
+                          <InputLabel id="demo-select-small-label">
+                            Size
+                          </InputLabel>
+                          <Select
+                            labelId="demo-select-small-label"
+                            id="demo-select-small"
+                            value={editData[field.id] || size}
+                            label="Size"
+                            onChange={(e) => {
+                              setSize(e.target.value);
+                              dispatch({
+                                type: "SET_EDIT_DATA",
+                                payload: {
+                                  ...editData,
+                                  [field.id]: e.target.value,
+                                },
+                              });
+                            }}
+                          >
+                            {sizeOptions.map((option, index) => (
+                              <MenuItem key={option} value={option}>
+                                {option}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      );
+                    } else {
+                      content = (
+                        <TextField
+                          id={field.id}
+                          label={field.label}
+                          type={field.type || "text"}
+                          size="small"
+                          variant="standard"
+                          fullWidth
+                          value={editData[field.id]}
+                          onChange={(e) =>
+                            dispatch({
+                              type: "SET_EDIT_DATA",
+                              payload: {
+                                ...editData,
+                                [field.id]: e.target.value,
+                              },
+                            })
+                          }
+                          InputProps={
+                            field.type === "number"
+                              ? {
+                                  startAdornment: (
+                                    <InputAdornment position="start">
+                                      ₱
+                                    </InputAdornment>
+                                  ),
+                                }
+                              : null
+                          }
+                        />
+                      );
+                    }
+                  } else {
+                    content = field.value;
+                  }
+
+                  return (
+                    <TableCell align="left" key={field.id}>
+                      {content}
+                    </TableCell>
+                  );
+                })}
                 <TableCell align="left" sx={{ borderTop: "1px solid #E0E0E0" }}>
                   {authEdit && editItemId === item.id ? (
                     <IconButton
@@ -157,6 +249,9 @@ export default function MenuViewer() {
                           payload: true,
                         });
                         dispatch({ type: "SET_CURRENT_ITEM", payload: item });
+                        setCategory(item.category); // Set the initial category
+                        dispatchSize({ type: item.category }); // Update the size options
+                        setSize(item.size); // Set the initial size
                       }}
                       sx={{
                         color: "#00a5b0",
