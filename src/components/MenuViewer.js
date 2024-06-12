@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -25,14 +25,14 @@ import {
 } from "@mui/material";
 import { UpdateTableMenu } from "./utils/CRUD";
 import { ItemListReducer, InitState, SizeReducer } from "./utils/Reducers";
-import { getCategories } from "./utils/Categories"; // Import your categories function
+import { getCategories } from "./utils/Categories";
 
 export default function MenuViewer() {
   const TableHeader = ["Food", "Category", "Size", "Stock", "Price", "Cost"];
-  const [state, dispatch] = useReducer(ItemListReducer, InitState);
-  const [sizeOptions, dispatchSize] = useReducer(SizeReducer, []);
-  const [size, setSize] = useState("");
-  const [category, setCategory] = useState("");
+  const [state, dispatch] = React.useReducer(ItemListReducer, InitState);
+  const [sizeOptions, dispatchSize] = React.useReducer(SizeReducer, []);
+  const [size, setSize] = React.useState("");
+  const [category, setCategory] = React.useState("");
   const categories = getCategories();
   const {
     createMenu,
@@ -48,7 +48,7 @@ export default function MenuViewer() {
     currentItem,
   } = state;
 
-  useEffect(() => {
+  React.useEffect(() => {
     UpdateTableMenu({ dispatch });
   }, []);
 
@@ -129,7 +129,7 @@ export default function MenuViewer() {
                                 payload: {
                                   ...editData,
                                   [field.id]: e.target.value,
-                                  size: "", // reset size when category changes
+                                  size: "",
                                 },
                               });
                             }}
@@ -227,12 +227,12 @@ export default function MenuViewer() {
                     <IconButton
                       color="primary"
                       aria-label="save edit"
-                      onClick={() =>
+                      onClick={() => {
                         dispatch({
                           type: "SET_OPEN_CONFIRMATION_SAVE",
                           payload: true,
-                        })
-                      }
+                        });
+                      }}
                       sx={{
                         color: "#00a5b0",
                       }}
@@ -249,9 +249,9 @@ export default function MenuViewer() {
                           payload: true,
                         });
                         dispatch({ type: "SET_CURRENT_ITEM", payload: item });
-                        setCategory(item.category); // Set the initial category
-                        dispatchSize({ type: item.category }); // Update the size options
-                        setSize(item.size); // Set the initial size
+                        setCategory(item.category);
+                        dispatchSize({ type: item.category });
+                        setSize(item.size);
                       }}
                       sx={{
                         color: "#00a5b0",
