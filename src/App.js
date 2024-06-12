@@ -1,6 +1,5 @@
 import React from "react";
-import CreateItem from "./components/CreateItem";
-import ItemList from "./components/ItemList";
+import MenuViewer from "./components/MenuViewer";
 import { Container, Typography } from "@mui/material";
 
 function App() {
@@ -14,7 +13,7 @@ function App() {
       >
         Restaurant Tracker
       </Typography>
-      <ItemList />
+      <MenuViewer />
     </Container>
   );
 }
