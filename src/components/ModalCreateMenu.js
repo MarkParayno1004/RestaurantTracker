@@ -1,94 +1,32 @@
 import * as React from "react";
-import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import app from "../firebase-config";
-import { getDatabase, ref, set, push } from "firebase/database";
-import { Grid, InputAdornment } from "@mui/material";
-import Alert from "@mui/material/Alert";
-import CheckIcon from "@mui/icons-material/Check";
+import PropTypes from "prop-types";
+import {
+  Grid,
+  InputAdornment,
+  Typography,
+  InputLabel,
+  MenuItem,
+  FormControl,
+  Select,
+  Button,
+  TextField,
+  Box,
+  Modal,
+} from "@mui/material";
+import { getCategories } from "./utils/Categories";
+import { CreateMenu } from "./utils/CRUD";
+import { style } from "./utils/ModalBoxStyle";
+import { SizeReducer } from "./utils/Reducers";
 
-export default function CreateItem({ open, handleClose }) {
+export default function ModalCreateMenu({ open, handleClose }) {
   const nameRef = React.useRef(null);
   const priceRef = React.useRef(0);
   const costRef = React.useRef(0);
   const stockRef = React.useRef(0);
   const [category, setCategory] = React.useState("");
   const [size, setSize] = React.useState("");
-  const [sizeOptions, dispatchSize] = React.useReducer(reducer, []);
-
-  function reducer(state, action) {
-    switch (action.type) {
-      case "Appetizers":
-        return ["Small", "Medium", "Large"];
-      case "Soups":
-        return ["Cup", "Bowl"];
-      case "Salads":
-        return ["Side", "Regular", "Large"];
-      case "Main Course":
-        return ["Regular", "Large"];
-      case "Sides":
-        return ["Small", "Medium", "Large"];
-      case "Desserts":
-        return ["Single", "Double"];
-      case "Beverage":
-        return ["Small", "Medium", "Large"];
-      default:
-        return [];
-    }
-  }
-
-  const saveData = async () => {
-    const db = getDatabase(app);
-    const newDocRef = push(ref(db, "item/data"));
-    set(newDocRef, {
-      category: category,
-      name: nameRef.current.value,
-      price: priceRef.current.value,
-      cost: costRef.current.value,
-      stock: stockRef.current.value,
-      size: size,
-    })
-      .then(() => {
-        <Alert icon={<CheckIcon fontSize="inherit" />} severity="success">
-          Here is a gentle confirmation that your action was successful.
-        </Alert>;
-        nameRef.current.value = "";
-        priceRef.current.value = "";
-        costRef.current.value = "";
-        stockRef.current.value = "";
-        handleClose();
-      })
-      .catch((error) => alert("Error:", error));
-  };
-
-  const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
-  };
-
-  const categories = [
-    { value: "Appetizers", label: "Appetizers" },
-    { value: "Soups", label: "Soups" },
-    { value: "Salads", label: "Salads" },
-    { value: "Main Course", label: "Main Course" },
-    { value: "Sides", label: "Sides" },
-    { value: "Desserts", label: "Desserts" },
-    { value: "Beverage", label: "Beverage" },
-  ];
+  const [sizeOptions, dispatchSize] = React.useReducer(SizeReducer, []);
+  const categories = getCategories();
 
   return (
     <div>
@@ -99,7 +37,12 @@ export default function CreateItem({ open, handleClose }) {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="spring-modal-title" variant="h4" mb={2}>
+          <Typography
+            id="spring-modal-title"
+            variant="h4"
+            mb={2}
+            sx={{ color: "#00a5b0" }}
+          >
             Menu
           </Typography>
           <Grid container spacing={3}>
@@ -145,7 +88,7 @@ export default function CreateItem({ open, handleClose }) {
                   onChange={(e) => setSize(e.target.value)}
                 >
                   {sizeOptions.map((option, index) => (
-                    <MenuItem key={index} value={option}>
+                    <MenuItem key={option} value={option}>
                       {option}
                     </MenuItem>
                   ))}
@@ -196,10 +139,20 @@ export default function CreateItem({ open, handleClose }) {
 
           <Box mt={2} sx={{ display: "flex", justifyContent: "flex-end" }}>
             <Button
-              onClick={saveData}
+              onClick={() => {
+                CreateMenu({
+                  category,
+                  nameRef,
+                  priceRef,
+                  costRef,
+                  stockRef,
+                  size,
+                  handleClose,
+                });
+              }}
               variant="contained"
-              color="primary"
               fullWidth
+              style={{ backgroundColor: "#00a5b0", fontWeight: "bold" }}
             >
               Add Menu
             </Button>
@@ -209,3 +162,8 @@ export default function CreateItem({ open, handleClose }) {
     </div>
   );
 }
+
+ModalCreateMenu.propTypes = {
+  open: PropTypes.bool.isRequired,
+  handleClose: PropTypes.bool.isRequired,
+};
