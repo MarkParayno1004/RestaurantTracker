@@ -17,6 +17,7 @@ import { getCategories } from "./utils/Categories";
 import { CreateMenu } from "./utils/CRUD";
 import { style } from "./utils/ModalBoxStyle";
 import { SizeReducer } from "./utils/Reducers";
+import { ValidateAddMenu } from "./utils/InputValidation";
 
 export default function ModalCreateMenu({ open, handleClose }) {
   const nameRef = React.useRef(null);
@@ -26,7 +27,32 @@ export default function ModalCreateMenu({ open, handleClose }) {
   const [category, setCategory] = React.useState("");
   const [size, setSize] = React.useState("");
   const [sizeOptions, dispatchSize] = React.useReducer(SizeReducer, []);
+  const [errors, setErrors] = React.useState({});
   const categories = getCategories();
+
+  const handleValidateAddMenu = () => {
+    const isValid = ValidateAddMenu({
+      nameRef,
+      category,
+      size,
+      stockRef,
+      priceRef,
+      costRef,
+      setErrors,
+    });
+
+    if (isValid) {
+      CreateMenu({
+        category,
+        nameRef,
+        priceRef,
+        costRef,
+        stockRef,
+        size,
+        handleClose,
+      });
+    }
+  };
 
   return (
     <div>
@@ -53,6 +79,8 @@ export default function ModalCreateMenu({ open, handleClose }) {
                 inputRef={nameRef}
                 fullWidth
                 size="small"
+                error={!!errors.name}
+                helperText={errors.name}
               />
             </Grid>
             <Grid item xs={12}>
@@ -68,6 +96,7 @@ export default function ModalCreateMenu({ open, handleClose }) {
                     dispatchSize({ type: e.target.value });
                     setSize("");
                   }}
+                  error={!!errors.category}
                 >
                   {categories.map((category) => (
                     <MenuItem key={category.value} value={category.value}>
@@ -76,6 +105,11 @@ export default function ModalCreateMenu({ open, handleClose }) {
                   ))}
                 </Select>
               </FormControl>
+              {errors.category && (
+                <Typography variant="caption" color="error">
+                  {errors.category}
+                </Typography>
+              )}
             </Grid>
             <Grid item xs={12}>
               <FormControl sx={{ minWidth: 1 }} size="small" fullWidth>
@@ -86,6 +120,7 @@ export default function ModalCreateMenu({ open, handleClose }) {
                   value={size}
                   label="Size"
                   onChange={(e) => setSize(e.target.value)}
+                  error={!!errors.size}
                 >
                   {sizeOptions.map((option, index) => (
                     <MenuItem key={option} value={option}>
@@ -94,6 +129,11 @@ export default function ModalCreateMenu({ open, handleClose }) {
                   ))}
                 </Select>
               </FormControl>
+              {errors.size && (
+                <Typography variant="caption" color="error">
+                  {errors.size}
+                </Typography>
+              )}
             </Grid>
             <Grid item xs={12}>
               <TextField
@@ -103,6 +143,8 @@ export default function ModalCreateMenu({ open, handleClose }) {
                 size="small"
                 fullWidth
                 inputRef={stockRef}
+                error={!!errors.stock}
+                helperText={errors.stock}
               />
             </Grid>
             <Grid item xs={6}>
@@ -118,6 +160,8 @@ export default function ModalCreateMenu({ open, handleClose }) {
                   ),
                 }}
                 inputRef={priceRef}
+                error={!!errors.price}
+                helperText={errors.price}
               />
             </Grid>
             <Grid item xs={6}>
@@ -133,23 +177,15 @@ export default function ModalCreateMenu({ open, handleClose }) {
                   ),
                 }}
                 inputRef={costRef}
+                error={!!errors.cost}
+                helperText={errors.cost}
               />
             </Grid>
           </Grid>
 
           <Box mt={2} sx={{ display: "flex", justifyContent: "flex-end" }}>
             <Button
-              onClick={() => {
-                CreateMenu({
-                  category,
-                  nameRef,
-                  priceRef,
-                  costRef,
-                  stockRef,
-                  size,
-                  handleClose,
-                });
-              }}
+              onClick={handleValidateAddMenu}
               variant="contained"
               fullWidth
               style={{ backgroundColor: "#00a5b0", fontWeight: "bold" }}
