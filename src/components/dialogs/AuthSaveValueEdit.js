@@ -6,6 +6,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import PropTypes from "prop-types";
 import { useTheme } from "@mui/material/styles";
 
 export default function AuthSaveEdit({
@@ -46,3 +47,9 @@ export default function AuthSaveEdit({
     </Dialog>
   );
 }
+
+AuthSaveEdit.propTypes = {
+  handleOpen: PropTypes.bool.isRequired,
+  handleClose: PropTypes.bool.isRequired,
+  updateDataConfirmed: PropTypes.func.isRequired,
+};
