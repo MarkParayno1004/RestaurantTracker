@@ -49,5 +49,5 @@ export default function AuthDelete({
 AuthDelete.propTypes = {
   handleOpen: PropTypes.bool.isRequired,
   handleClose: PropTypes.bool.isRequired,
-  updateDataConfirmed: PropTypes.bool.isRequired,
+  updateDataConfirmed: PropTypes.func.isRequired,
 };
