@@ -4,14 +4,14 @@ import { Container, Typography } from "@mui/material";
 
 function App() {
   return (
-    <Container>
+    <Container maxWidth="md">
       <Typography
         m={2}
         variant="h4"
         color="#00a5b0"
         sx={{ fontWeight: "bold" }}
       >
-        Restaurant Tracker
+        Menu Tracker
       </Typography>
       <MenuViewer />
     </Container>
